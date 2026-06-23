@@ -297,7 +297,7 @@ describe('Checkbox', () => {
     });
   });
 
-  describe('given a Checkbox with a clickable ancestor inside a form', () => {
+describe('given a Checkbox with a clickable ancestor inside a form', () => {
     const onParentClick = vi.fn();
     const onFormChange = vi.fn();
 
@@ -373,6 +373,27 @@ describe('Checkbox', () => {
 
       // the form should still be notified of the change
       expect(onFormChange).toHaveBeenCalledWith(true);
+    });
+  });
+
+  // Regression test for https://github.com/radix-ui/primitives/issues/3167
+  describe('given a Checkbox with label association in a form', () => {
+    it('should hide the bubble input with the native hidden attribute', async () => {
+      const rendered = render(
+        <form>
+          <label htmlFor="pikachu">
+            Pikachu
+            <Checkbox.Root id="pikachu" name="Pikachu" value="Pikachu">
+              <Checkbox.Indicator data-testid={INDICATOR_TEST_ID} />
+            </Checkbox.Root>
+          </label>
+        </form>,
+      );
+
+      const input = rendered.container.querySelector('input[type="checkbox"]');
+      expect(input).toHaveAttribute('hidden');
+      expect(input).not.toHaveAttribute('aria-hidden');
+      expect(await axe(rendered.container)).toHaveNoViolations();
     });
   });
 });
@@ -557,22 +578,10 @@ describe('Legacy Checkbox', () => {
 });
 
 function LegacyCheckbox(props: React.ComponentProps<typeof Checkbox.Root>) {
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  React.useEffect(() => {
-    // We use the `hidden` attribute to hide the nested input from both sighted users and the
-    // accessibility tree. This is perfectly valid so long as users don't override the display of
-    // `hidden` in CSS. Unfortunately axe doesn't recognize this, so we get a violation because the
-    // input doesn't have a label. This adds an additional `aria-hidden` attribute to the input to
-    // get around that.
-    // https://developer.paciellogroup.com/blog/2012/05/html5-accessibility-chops-hidden-and-aria-hidden/
-    containerRef.current?.querySelector('input')?.setAttribute('aria-hidden', 'true');
-  }, []);
   return (
-    <div ref={containerRef}>
-      <Checkbox.Root aria-label="basic checkbox" {...props}>
-        <Checkbox.Indicator data-testid={INDICATOR_TEST_ID} />
-      </Checkbox.Root>
-    </div>
+    <Checkbox.Root aria-label="basic checkbox" {...props}>
+      <Checkbox.Indicator data-testid={INDICATOR_TEST_ID} />
+    </Checkbox.Root>
   );
 }
 
@@ -818,7 +827,8 @@ describe('Checkbox.unstable_BubbleInput', () => {
     const input = screen.getByTestId('bubble-input');
     expect(input.tagName).toBe('INPUT');
     expect(input).toHaveAttribute('type', 'checkbox');
-    expect(input).toHaveAttribute('aria-hidden', 'true');
+    expect(input).toHaveAttribute('hidden');
+    expect(input).not.toHaveAttribute('aria-hidden');
     expect(input).toHaveClass('custom-class');
     expect(input.style.outlineColor).toBe('rgb(1, 2, 3)');
     expect(ref.current).toBe(input);
