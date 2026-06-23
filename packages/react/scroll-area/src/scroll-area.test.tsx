@@ -379,7 +379,7 @@ describe('ScrollArea.Viewport', () => {
     expect(viewport).toHaveClass('custom-class');
     expect(viewport.style.outlineColor).toBe('rgb(1, 2, 3)');
     expect(ref.current).toBe(viewport);
-    expect(viewport.firstElementChild).toHaveStyle({ display: 'table', minWidth: '100%' });
+    expect(viewport.firstElementChild).toHaveStyle({ display: 'block', minWidth: '100%' });
     expect(viewport).toHaveTextContent('Content');
 
     fireEvent.click(viewport);
@@ -408,7 +408,7 @@ describe('ScrollArea.Viewport', () => {
     // there is no element for Slot to target
     const viewport = screen.getByTestId('viewport');
     expect(viewport).toHaveClass('custom-class');
-    expect(viewport).toHaveStyle({ display: 'table', minWidth: '100%' });
+    expect(viewport).toHaveStyle({ display: 'block', minWidth: '100%' });
     expect(warn).toHaveBeenCalledWith(
       expect.stringContaining('`asChild` expects a single React element child'),
     );
@@ -426,7 +426,7 @@ describe('ScrollArea.Viewport', () => {
     const viewport = screen.getByTestId('viewport');
     const content = viewport.firstElementChild;
     expect(content).toBeInstanceOf(HTMLDivElement);
-    expect(content).toHaveStyle({ display: 'table', minWidth: '100%' });
+    expect(content).toHaveStyle({ display: 'block', minWidth: '100%' });
     expect(content).toHaveTextContent('Content');
   });
 
@@ -442,7 +442,7 @@ describe('ScrollArea.Viewport', () => {
     const viewport = screen.getByTestId('viewport');
     const child = screen.getByTestId('child');
     expect(viewport.firstElementChild).toBe(child);
-    expect(child).not.toHaveStyle({ display: 'table' });
+    expect(child).not.toHaveStyle({ display: 'block' });
   });
 
   it('forwards props to the child when `asChild` is set with `disableImplicitContentElement`', () => {
@@ -475,7 +475,7 @@ describe('ScrollArea.Viewport', () => {
     expect(viewport).toHaveClass('custom-class');
     expect(viewport.style.outlineColor).toBe('rgb(1, 2, 3)');
     expect(ref.current).toBe(viewport);
-    expect(viewport.firstElementChild).toHaveStyle({ display: 'table', minWidth: '100%' });
+    expect(viewport.firstElementChild).toHaveStyle({ display: 'block', minWidth: '100%' });
     expect(viewport).toHaveTextContent('Content');
 
     fireEvent.click(viewport);
@@ -485,6 +485,21 @@ describe('ScrollArea.Viewport', () => {
 
 describe('ScrollArea.Content', () => {
   afterEach(cleanup);
+
+  // Regression test for https://github.com/radix-ui/primitives/issues/3646
+  it('uses block display so flex/resizable layouts are not broken by display:table', () => {
+    render(
+      <ScrollArea.Root>
+        <ScrollArea.Viewport data-testid="viewport">
+          <div>content</div>
+        </ScrollArea.Viewport>
+      </ScrollArea.Root>,
+    );
+
+    const contentWrapper = screen.getByTestId('viewport').firstElementChild;
+    expect(contentWrapper).toHaveStyle({ display: 'block', minWidth: '100%' });
+  });
+
 
   it('spreads props it does not consume onto the element it renders', () => {
     const ref = React.createRef<HTMLDivElement>();
@@ -507,7 +522,7 @@ describe('ScrollArea.Content', () => {
     );
 
     const content = screen.getByTestId('content');
-    expect(content).toHaveStyle({ display: 'table', minWidth: '100%' });
+    expect(content).toHaveStyle({ display: 'block', minWidth: '100%' });
     expect(content).toHaveClass('custom-class');
     expect(content.style.outlineColor).toBe('rgb(1, 2, 3)');
     expect(ref.current).toBe(content);
@@ -539,7 +554,7 @@ describe('ScrollArea.Content', () => {
 
     const content = screen.getByTestId('content');
     expect(content.tagName).toBe('ARTICLE');
-    expect(content).toHaveStyle({ display: 'table', minWidth: '100%' });
+    expect(content).toHaveStyle({ display: 'block', minWidth: '100%' });
     expect(content).toHaveClass('custom-class');
     expect(content.style.outlineColor).toBe('rgb(1, 2, 3)');
     expect(ref.current).toBe(content);

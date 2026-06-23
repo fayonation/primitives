@@ -295,16 +295,14 @@ const ScrollAreaContent = /* @__PURE__ */ React.forwardRef<
   const context = useScrollAreaContext(CONTENT_NAME, __scopeScrollArea);
   const composedRefs = useComposedRefs(forwardedRef, context.onContentChange);
   return (
-    // `display: table` ensures our content div will match the size of its
-    // children in both horizontal and vertical axis so we can determine if
-    // scroll width/height changed and recalculate thumb sizes. This doesn't
-    // account for children with *percentage* widths that change. We'll wait to
-    // see what use-cases consumers come up with there before trying to resolve
-    // it.
+    // `display: block` avoids layout issues caused by `display: table` in flex
+    // and resizable layouts while still allowing the viewport to measure
+    // scrollable content via `minWidth: 100%`.
+    // See: https://github.com/radix-ui/primitives/issues/3646
     <Primitive.div
       {...contentProps}
       ref={composedRefs}
-      style={{ minWidth: '100%', display: 'table', ...props.style }}
+      style={{ minWidth: '100%', display: 'block', ...props.style }}
     >
       {children}
     </Primitive.div>
