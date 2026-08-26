@@ -1833,7 +1833,10 @@ const SelectBubbleInput = /* @__PURE__ */ React.forwardRef<
         form={form}
         onChange={(event) => onValueChange(event.target.value)}
         {...props}
-        style={{ ...VISUALLY_HIDDEN_STYLES, ...props.style }}
+        // Pin to the containing block origin. Without `top`/`left`, absolutely
+        // positioned nodes keep their static position, which in constrained flex
+        // layouts can sit far below the trigger and extend page scroll (#3875).
+        style={{ ...VISUALLY_HIDDEN_STYLES, top: 0, left: 0, ...props.style }}
         ref={composedRefs}
         defaultValue={selectValue}
       >

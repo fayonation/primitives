@@ -1529,6 +1529,31 @@ describe('Select.BubbleInput', () => {
     expect(onClick).toHaveBeenCalled();
   });
 
+  // Regression test for https://github.com/radix-ui/primitives/issues/3875
+  it('pins the visually hidden native select to the containing block origin', () => {
+    const { container } = render(
+      <form>
+        <Select.Root name="fruit">
+          <Select.Trigger>
+            <Select.Value placeholder="Pick" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Content>
+              <Select.Viewport>
+                <Select.Item value="apple">
+                  <Select.ItemText>Apple</Select.ItemText>
+                </Select.Item>
+              </Select.Viewport>
+            </Select.Content>
+          </Select.Portal>
+        </Select.Root>
+      </form>,
+    );
+
+    const bubbleInput = container.querySelector('select');
+    expect(bubbleInput).toHaveStyle({ position: 'absolute', top: '0px', left: '0px' });
+  });
+
   // TODO: Fix this
   it.todo('forwards props to the child element when `asChild` is set');
 });
